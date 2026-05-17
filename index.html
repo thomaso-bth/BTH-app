@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>BTH - Construction Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F5F3F0; }
+        .screen { display: none; min-height: 100vh; }
+        .screen.active { display: flex; flex-direction: column; }
+
+        #loginScreen {
+            background: linear-gradient(135deg, #08101E 0%, #1E2430 100%);
+            background-image: 
+                linear-gradient(135deg, rgba(8, 16, 30, 0.92) 0%, rgba(30, 36, 48, 0.92) 100%),
+                radial-gradient(circle at 20% 50%, rgba(191, 154, 91, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(191, 154, 91, 0.05) 0%, transparent 50%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="p" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse"><path d="M0 0 L200 0 L200 200 L0 200 Z" stroke="%23BF9A5B" stroke-width="0.5" fill="none" opacity="0.03"/><circle cx="100" cy="100" r="30" stroke="%23BF9A5B" stroke-width="0.3" fill="none" opacity="0.02"/></pattern></defs><rect width="1000" height="1000" fill="%2308101E"/><rect width="1000" height="1000" fill="url(%23p)"/></svg>');
+            background-size: cover, cover, cover, 200px 200px;
+            background-attachment: fixed;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #loginScreen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(180deg, transparent 0%, rgba(8, 16, 30, 0.3) 100%),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(191, 154, 91, 0.01) 2px,
+                    rgba(191, 154, 91, 0.01) 4px
+                );
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .login-box {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(191, 154, 91, 0.1);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(191, 154, 91, 0.2);
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, #08101E 0%, #1E2430 100%);
+            border-bottom: 3px solid #BF9A5B;
+            padding: 50px 24px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 50% 0%, rgba(191, 154, 91, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .login-logo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #08101E 0%, #1E2430 100%);
+            border: 3px solid #BF9A5B;
+            border-radius: 16px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 56px;
+            font-weight: 700;
+            color: #BF9A5B;
+            font-family: Georgia, serif;
+            box-shadow: 0 10px 30px rgba(191, 154, 91, 0.3);
+        }
+        
+        .login-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        .login-header p { color: #BF9A5B; font-weight: 600; font-size: 14px; }
+        
+        .login-content { padding: 32px 24px; }
+        
+        .login-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .login-btn {
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            -webkit-appearance: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .login-btn:active { transform: translateY(-2px); }
+        .btn-admin { background: #08101E; color: white; }
+        .btn-team { background: #BF9A5B; color: white; }
+        
+        .header {
+            background: linear-gradient(135deg, #08101E 0%, #1E2430 100%);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header.team { background: linear-gradient(135deg, #BF9A5B 0%, #A87E3B 100%); }
+        
+        #clientScreen .header {
+            border-bottom: 2px solid #BF9A5B;
+            box-shadow: 0 4px 20px rgba(191, 154, 91, 0.15);
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .header-logo { width: 32px; height: 32px; background: rgba(191, 154, 91, 0.2); border: 2px solid #BF9A5B; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #BF9A5B; font-family: Georgia, serif; }
+        .header-text h1 { font-size: 14px; font-weight: 700; }
+        .header-text p { font-size: 11px; opacity: 0.85; }
+        .logout-btn { background: #EF4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; }
+        
+        .dashboard { flex: 1; overflow-y: auto; }
+        .content { padding: 16px; max-width: 1400px; margin: 0 auto; }
+        
+        #clientScreen .content {
+            background: linear-gradient(135deg, #08101E 0%, #1E2430 100%);
+            background-image: 
+                linear-gradient(135deg, rgba(8, 16, 30, 0.95) 0%, rgba(30, 36, 48, 0.95) 100%),
+                radial-gradient(circle at 20% 30%, rgba(191, 154, 91, 0.1) 0%, transparent 60%),
+                radial-gradient(circle at 90% 70%, rgba(191, 154, 91, 0.08) 0%, transparent 60%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="cp" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="200" height="200" fill="none" stroke="%23BF9A5B" stroke-width="0.5" opacity="0.04"/></pattern></defs><rect width="1000" height="1000" fill="%2308101E"/><rect width="1000" height="1000" fill="url(%23cp)"/></svg>');
+            background-size: cover, cover, cover, 200px 200px;
+            background-attachment: fixed;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        #clientScreen .content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(8, 16, 30, 0.2) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        #clientScreen .card {
+            position: relative;
+            z-index: 1;
+        }
+        
+        #clientScreen .page-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .page-title { font-size: 24px; font-weight: 700; color: #08101E; margin-bottom: 20px; }
+        
+        #clientScreen .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border: 1px solid rgba(191, 154, 91, 0.15);
+            position: relative;
+            z-index: 1;
+        }
+        
+        #clientScreen .card:hover {
+            box-shadow: 0 12px 35px rgba(191, 154, 91, 0.2);
+            border-color: rgba(191, 154, 91, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .card h2 { font-size: 18px; font-weight: 700; color: #08101E; margin-bottom: 16px; }
+        .card h3 { font-size: 14px; font-weight: 700; color: #1E2430; margin-bottom: 12px; margin-top: 16px; }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #E5E7EB;
+            overflow-x: auto;
+            padding-bottom: 0;
+        }
+        
+        .tab {
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+        
+        .tab.active {
+            color: #08101E;
+            border-bottom-color: #BF9A5B;
+        }
+        
+        #clientScreen .tabs {
+            border-bottom: 2px solid rgba(191, 154, 91, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        #clientScreen .tab {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        #clientScreen .tab.active {
+            color: white;
+            border-bottom-color: #BF9A5B;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-appearance: none;
+        }
+        
+        .btn:active { opacity: 0.85; transform: scale(0.98); }
+        .btn-primary { background: #08101E; color: white; }
+        .btn-gold { background: #BF9A5B; color: white; }
+        .btn-green { background: #10B981; color: white; }
+        .btn-secondary { background: #E5E7EB; color: #1E2430; }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-top: 4px solid #BF9A5B;
+        }
+        
+        .stat-label { color: #666; font-size: 12px; font-weight: 500; margin-bottom: 8px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #08101E; }
+        .stat-value.gold { color: #BF9A5B; }
+        .stat-value.green { color: #10B981; }
+        .stat-value.red { color: #DC2626; }
+        
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .alert.info { background: #EFF6FF; color: #0C4A6E; border-left: 4px solid #3B82F6; }
+        .alert.success { background: #DCFCE7; color: #166534; border-left: 4px solid #10B981; }
+        .alert.warning { background: #FEF3C7; color: #92400E; border-left: 4px solid #FBBF24; }
+        .alert.danger { background: #FEE2E2; color: #991B1B; border-left: 4px solid #EF4444; }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+        
+        .table th {
+            background: #F5F3F0;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #E5E7EB;
+            font-size: 13px;
+        }
+        
+        .table tr:hover {
+            background: #F9F8F6;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .badge.completed { background: #DCFCE7; color: #166534; }
+        .badge.pending { background: #FEF3C7; color: #92400E; }
+        .badge.overdue { background: #FEE2E2; color: #991B1B; }
+        .badge.on-time { background: #DCFCE7; color: #166534; }
+        
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: #F5F3F0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .checklist-item input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .photo-item {
+            aspect-ratio: 1;
+            background: #E5E7EB;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            cursor: pointer;
+        }
+        
+        .calendar-view {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+        }
+        
+        .calendar-day.booked {
+            background: #BF9A5B;
+            color: white;
+            border-color: #BF9A5B;
+        }
+        
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #F5F3F0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #BF9A5B;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="screen active">
+    <div class="login-box">
+        <div class="login-header">
+            <div class="login-logo">BT</div>
+            <h1>Bradley Thomas Homes</h1>
+            <p>Built on trust. Driven by design.</p>
+        </div>
+        
+        <div class="login-content">
+            <div style="text-align: center; color: #666; font-size: 12px; margin-bottom: 18px; font-weight: 600;">SELECT YOUR ROLE</div>
+            
+            <div class="login-buttons">
+                <button class="login-btn btn-admin" onclick="showScreen('adminScreen')">👨‍💼 Admin - Thomas</button>
+                <button class="login-btn btn-team" onclick="showScreen('teamScreen', 'Team 1: Mike & Jake')">👷 Team 1 - Oakfield</button>
+                <button class="login-btn btn-team" onclick="showScreen('teamScreen', 'Team 2: Emma & Lee')">👷 Team 2 - Chelsea</button>
+                <button class="login-btn btn-team" onclick="showScreen('teamScreen', 'Team 3: Paul & Tom')">👷 Team 3 - Mayfair</button>
+                <button class="login-btn btn-client" onclick="showScreen('clientScreen')">🏡 Client - John</button>
+                <button class="login-btn btn-subcontractor" onclick="showScreen('subScreen', 'Electrician')">⚡ Electrician</button>
+                <button class="login-btn btn-subcontractor" onclick="showScreen('subScreen', 'Plumber')">🚰 Plumber</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN DASHBOARD - COMPREHENSIVE -->
+<div id="adminScreen" class="screen dashboard">
+    <div class="header">
+        <div class="header-left">
+            <div class="header-logo">BT</div>
+            <div class="header-text">
+                <h1>Bradley Thomas Homes</h1>
+                <p>👨‍💼 Management Platform</p>
+            </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    
+    <div class="content">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard', this)">Dashboard</button>
+            <button class="tab" onclick="switchTab('jobs', this)">New Project</button>
+            <button class="tab" onclick="switchTab('messages', this)">💬 Messages</button>
+            <button class="tab" onclick="switchTab('financials', this)">Financials</button>
+            <button class="tab" onclick="switchTab('gallery', this)">Gallery</button>
+            <button class="tab" onclick="switchTab('safety', this)">Safety</button>
+            <button class="tab" onclick="switchTab('materials', this)">Materials</button>
+            <button class="tab" onclick="switchTab('team', this)">Team</button>
+            <button class="tab" onclick="switchTab('subs', this)">Subs</button>
+            <button class="tab" onclick="switchTab('analytics', this)">Analytics</button>
+        </div>
+
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard-tab" class="tab-content">
+            <h2 class="page-title">📊 Dashboard</h2>
+            
+            <div class="card">
+                <h3>Filter Projects</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px;">
+                    <button class="btn btn-primary" style="background: #10B981;">✓ Live (3)</button>
+                    <button class="btn btn-secondary">⏳ Awaiting (2)</button>
+                    <button class="btn btn-secondary">❄️ Cold (3)</button>
+                    <button class="btn btn-secondary">📦 Archive (0)</button>
+                </div>
+            </div>
+            
+            <div class="grid-3">
+                <div class="stat-card">
+                    <div class="stat-label">Active Jobs</div>
+                    <div class="stat-value">3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Revenue (YTD)</div>
+                    <div class="stat-value gold">£635K</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Margin</div>
+                    <div class="stat-value green">42%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">In Pipeline</div>
+                    <div class="stat-value">5</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Invoices Pending</div>
+                    <div class="stat-value red">£47,520</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Days Ahead</div>
+                    <div class="stat-value green">+2</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🔔 Alerts & Reminders</h2>
+                <div class="alert danger">
+                    <span>🚨 Invoice overdue 5 days - John Anderson - £17,664</span>
+                </div>
+                <div class="alert warning">
+                    <span>⚠️ Electrician arriving tomorrow - 20 May - Is site ready?</span>
+                </div>
+                <div class="alert success">
+                    <span>✅2 days ahead of schedule - Keep this pace!</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📅 Master Calendar</h2>
+                <p style="font-size: 12px; color: #666; margin-bottom: 12px;">May 2025</p>
+                <div class="calendar-view">
+                    <div style="text-align: center; font-weight: 600; font-size: 11px;">Mon</div>
+                    <div style="text-align: center; font-weight: 600; font-size: 11px;">Tue</div>
+                    <div style="text-align: center; font-weight: 600; font-size: 11px;">Wed</div>
+                    <div style="text-align: center; font-weight: 600; font-size: 11px;">Thu</div>
+                    <div style="text-align: center; font-weight: 600; font-size: 11px;">Fri</div>
+                    <div style="text-align: center; font-weight: 600; font-size: 11px;">Sat</div>
+                    <div style="text-align: center; font-weight: 600; font-size: 11px;">Sun</div>
+                    
+                    <div class="calendar-day" style="color: #999;">28</div>
+                    <div class="calendar-day" style="color: #999;">29</div>
+                    <div class="calendar-day" style="color: #999;">30</div>
+                    <div class="calendar-day">1</div>
+                    <div class="calendar-day">2</div>
+                    <div class="calendar-day">3</div>
+                    <div class="calendar-day">4</div>
+                    
+                    <div class="calendar-day">5 🏠</div>
+                    <div class="calendar-day">6 🏠</div>
+                    <div class="calendar-day">7 🏠</div>
+                    <div class="calendar-day">8 🏠</div>
+                    <div class="calendar-day">9 🏠</div>
+                    <div class="calendar-day" style="background: #F5F3F0;">10</div>
+                    <div class="calendar-day" style="background: #F5F3F0;">11</div>
+                    
+                    <div class="calendar-day">12 🏠</div>
+                    <div class="calendar-day">13 🏠</div>
+                    <div class="calendar-day">14 🏠</div>
+                    <div class="calendar-day">15 ⚡</div>
+                    <div class="calendar-day">16 ⚡</div>
+                    <div class="calendar-day" style="background: #F5F3F0;">17</div>
+                    <div class="calendar-day" style="background: #F5F3F0;">18</div>
+                    
+                    <div class="calendar-day">19 ⚡</div>
+                    <div class="calendar-day">20 ⚡</div>
+                    <div class="calendar-day">21 🚰</div>
+                    <div class="calendar-day">22 🚰</div>
+                    <div class="calendar-day">23 🎨</div>
+                    <div class="calendar-day" style="background: #F5F3F0;">24</div>
+                    <div class="calendar-day" style="background: #F5F3F0;">25</div>
+                </div>
+                <p style="font-size: 11px; color: #666;">🏠 = Carpenter | ⚡ = Electrician | 🚰 = Plumber | 🎨 = Plasterer</p>
+            </div>
+
+            <div class="card">
+                <h2>📁 All Projects</h2>
+                <p style="font-size: 12px; color: #666; margin-bottom: 16px;">Click to manage project details</p>
+                
+                <!-- LIVE PROJECTS -->
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #10B981;">✓ LIVE (3)</h3>
+                
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#BF9A5B'; this.style.boxShadow='0 2px 8px rgba(191,154,91,0.2)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">Oakfield Loft Conversion</div>
+                        <span style="background: #DCFCE7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">LIVE</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 8px;">
+                        <span>John Anderson • £58,880</span>
+                        <span>70% | Due: 26 Jun</span>
+                    </div>
+                    <div style="background: #E5E7EB; height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: #BF9A5B; height: 100%; width: 70%; border-radius: 3px;"></div>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#BF9A5B'; this.style.boxShadow='0 2px 8px rgba(191,154,91,0.2)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">Chelsea House Extension</div>
+                        <span style="background: #DCFCE7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">LIVE</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 8px;">
+                        <span>Sarah Mitchell • £72,500</span>
+                        <span>45% | Due: 15 Jul</span>
+                    </div>
+                    <div style="background: #E5E7EB; height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: #BF9A5B; height: 100%; width: 45%; border-radius: 3px;"></div>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px; margin-bottom: 16px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#BF9A5B'; this.style.boxShadow='0 2px 8px rgba(191,154,91,0.2)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">Mayfair Renovation</div>
+                        <span style="background: #DCFCE7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">LIVE</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 8px;">
+                        <span>David Chen • £95,200</span>
+                        <span>20% | Due: 20 Aug</span>
+                    </div>
+                    <div style="background: #E5E7EB; height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: #BF9A5B; height: 100%; width: 20%; border-radius: 3px;"></div>
+                    </div>
+                </div>
+
+                <!-- AWAITING PROJECTS -->
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #FBBF24;">⏳ AWAITING (2)</h3>
+
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#BF9A5B'; this.style.boxShadow='0 2px 8px rgba(191,154,91,0.2)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">South Kensington Loft</div>
+                        <span style="background: #FEF3C7; color: #92400E; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">AWAITING</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 8px;">
+                        <span>Emma Watson • £64,250</span>
+                        <span>Awaiting planning</span>
+                    </div>
+                    <div style="background: #E5E7EB; height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: #BF9A5B; height: 100%; width: 0%; border-radius: 3px;"></div>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px; margin-bottom: 16px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#BF9A5B'; this.style.boxShadow='0 2px 8px rgba(191,154,91,0.2)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">Richmond Dormer</div>
+                        <span style="background: #FEF3C7; color: #92400E; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">AWAITING</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 8px;">
+                        <span>James Wilson • £48,500</span>
+                        <span>Awaiting decision</span>
+                    </div>
+                    <div style="background: #E5E7EB; height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: #BF9A5B; height: 100%; width: 0%; border-radius: 3px;"></div>
+                    </div>
+                </div>
+
+                <!-- COLD PROJECTS -->
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #6366F1;">❄️ COLD (3)</h3>
+
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#BF9A5B'; this.style.boxShadow='0 2px 8px rgba(191,154,91,0.2)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">Wandsworth Hip-to-Gable</div>
+                        <span style="background: #E0E7FF; color: #312E81; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">COLD</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 8px;">
+                        <span>Lisa Brown • £55,000</span>
+                        <span>Considering options</span>
+                    </div>
+                    <div style="background: #E5E7EB; height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: #BF9A5B; height: 100%; width: 0%; border-radius: 3px;"></div>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#BF9A5B'; this.style.boxShadow='0 2px 8px rgba(191,154,91,0.2)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">Clapham Velux Only</div>
+                        <span style="background: #E0E7FF; color: #312E81; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">COLD</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 8px;">
+                        <span>Michael Ford • £22,500</span>
+                        <span>Budget concerns</span>
+                    </div>
+                    <div style="background: #E5E7EB; height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: #BF9A5B; height: 100%; width: 0%; border-radius: 3px;"></div>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#BF9A5B'; this.style.boxShadow='0 2px 8px rgba(191,154,91,0.2)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">Putney L-Shaped Dormer</div>
+                        <span style="background: #E0E7FF; color: #312E81; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">COLD</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-bottom: 8px;">
+                        <span>Rebecca Hall • £67,750</span>
+                        <span>Got another quote</span>
+                    </div>
+                    <div style="background: #E5E7EB; height: 6px; border-radius: 3px; overflow: hidden;">
+                        <div style="background: #BF9A5B; height: 100%; width: 0%; border-radius: 3px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>👷 Team Management</h2>
+                <p style="font-size: 12px; color: #666; margin-bottom: 16px;">Current status of all crews</p>
+                
+                <div style="background: white; border: 1px solid #10B981; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">👷 Team 1: Mike & Jake</div>
+                        <span style="background: #DCFCE7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">ON SITE</span>
+                    </div>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 8px;">Oakfield Loft - First Fix (70%)</p>
+                    <div style="display: flex; gap: 8px; font-size: 11px;">
+                        <span style="background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">⏰ Clocked In</span>
+                        <span style="background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">📸 Photos updated</span>
+                        <span style="background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">⚡ Electrician: 20 May</span>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #FBBF24; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">👷 Team 2: Emma & Lee</div>
+                        <span style="background: #FEF3C7; color: #92400E; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">STANDBY</span>
+                    </div>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 8px;">Chelsea House - Structural (45%)</p>
+                    <div style="display: flex; gap: 8px; font-size: 11px;">
+                        <span style="background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">📅 Start: 2 June</span>
+                        <span style="background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">✓ Materials ordered</span>
+                        <span style="background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">⚠️ Awaiting plans</span>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #3B82F6; border-radius: 8px; padding: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-weight: 700; color: #08101E;">👷 Team 3: Paul & Tom</div>
+                        <span style="background: #EFF6FF; color: #0C4A6E; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">PLANNING</span>
+                    </div>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 8px;">Mayfair Renovation - Structural (20%)</p>
+                    <div style="display: flex; gap: 8px; font-size: 11px;">
+                        <span style="background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">📅 Start: 9 June</span>
+                        <span style="background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">🔨 Tools ready</span>
+                        <span style="background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">✓ Safety briefing done</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JOBS TAB (NEW PROJECT) -->
+        <div id="jobs-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">➕ New Project / Survey</h2>
+            
+            <!-- SECTION 01: CLIENT DETAILS -->
+            <div class="card">
+                <h3>01 Client & Project Details</h3>
+                
+                <div class="form-group">
+                    <label>Client Name</label>
+                    <input type="text" placeholder="e.g. John Anderson">
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" placeholder="07700 123456">
+                </div>
+                
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="john@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" placeholder="42 Oakfield Road, London">
+                </div>
+                
+                <div class="form-group">
+                    <label>Lead Source</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 6px;">
+                        <option>-- Select --</option>
+                        <option>Website</option>
+                        <option>Google</option>
+                        <option>Referral</option>
+                        <option>Facebook</option>
+                        <option>Instagram</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Date of Visit</label>
+                    <input type="date">
+                </div>
+                
+                <div class="form-group">
+                    <label>Surveyor</label>
+                    <input type="text" placeholder="Your name">
+                </div>
+            </div>
+            
+            <!-- SECTION 02: PROPERTY TYPE & STATUS -->
+            <div class="card">
+                <h3>02 Property Type & Access</h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Property Type</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 6px;">
+                        <option>-- Select --</option>
+                        <option>Terraced</option>
+                        <option>Semi-detached</option>
+                        <option>Detached</option>
+                        <option>Bungalow</option>
+                        <option>Flat</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Conversion Type</label>
+                    <div class="checklist">
+                        <label class="checklist-item"><input type="checkbox"> Rear Dormer</label>
+                        <label class="checklist-item"><input type="checkbox"> L-Shaped Dormer</label>
+                        <label class="checklist-item"><input type="checkbox"> Hip-to-Gable</label>
+                        <label class="checklist-item"><input type="checkbox"> Mansard</label>
+                        <label class="checklist-item"><input type="checkbox"> Walk-Only</label>
+                        <label class="checklist-item"><input type="checkbox"> Bungalow</label>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Occupied / Vacant</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 6px;">
+                        <option>-- Select --</option>
+                        <option>Occupied</option>
+                        <option>Vacant</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Parking / Access</label>
+                    <input type="text" placeholder="e.g. On-street, drive, difficult">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Preferred Start Date</label>
+                    <input type="date">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Budget Guidance</label>
+                    <input type="text" placeholder="e.g. £45k-£55k">
+                </div>
+            </div>
+            
+            <!-- SECTION 03: CLIENT REQUIREMENTS -->
+            <div class="card">
+                <h3>03 Client Requirements</h3>
+                
+                <label style="display: block; font-weight: 600; margin-bottom: 12px;">What do they need?</label>
+                <div class="checklist">
+                    <label class="checklist-item"><input type="checkbox"> Bedroom</label>
+                    <label class="checklist-item"><input type="checkbox"> En-Suite</label>
+                    <label class="checklist-item"><input type="checkbox"> Bathroom</label>
+                    <label class="checklist-item"><input type="checkbox"> Office</label>
+                    <label class="checklist-item"><input type="checkbox"> Walk-in Wardrobe</label>
+                    <label class="checklist-item"><input type="checkbox"> Rear Balcony</label>
+                    <label class="checklist-item"><input type="checkbox"> Storage</label>
+                </div>
+            </div>
+            
+            <!-- SECTION 04: MEASUREMENTS -->
+            <div class="card">
+                <h3>04 Key Measurements</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <div class="form-group">
+                        <label>Existing Loft Length (m)</label>
+                        <input type="number" placeholder="e.g. 8.5" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Existing Loft Width (m)</label>
+                        <input type="number" placeholder="e.g. 5.2" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Ridge Height (m)</label>
+                        <input type="number" placeholder="e.g. 2.3" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Eaves Height (m)</label>
+                        <input type="number" placeholder="e.g. 1.8" step="0.1">
+                    </div>
+                </div>
+                
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Roof Pitch</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 6px;">
+                        <option>-- Select --</option>
+                        <option>25°</option>
+                        <option>30°</option>
+                        <option>35°</option>
+                        <option>40°</option>
+                        <option>45°+</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- SECTION 05: DESIGN STATUS -->
+            <div class="card">
+                <h3>05 Plans & Design</h3>
+                
+                <label style="display: block; font-weight: 600; margin-bottom: 12px;">What's available?</label>
+                <div class="checklist">
+                    <label class="checklist-item"><input type="checkbox"> No plans yet</label>
+                    <label class="checklist-item"><input type="checkbox"> Architectural plans available</label>
+                    <label class="checklist-item"><input type="checkbox"> Structural calcs available</label>
+                    <label class="checklist-item"><input type="checkbox"> Planning approved</label>
+                    <label class="checklist-item"><input type="checkbox"> Building Control known</label>
+                    <label class="checklist-item"><input type="checkbox"> Party wall agreement needed</label>
+                </div>
+            </div>
+            
+            <!-- SECTION 06: ELECTRICALS & HEATING -->
+            <div class="card">
+                <h3>06 Electrics & Heating</h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Proposed Rooms</label>
+                    <input type="text" placeholder="e.g. Bedroom, En-suite, Landing">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Heating Required</label>
+                    <div class="checklist">
+                        <label class="checklist-item"><input type="checkbox"> Radiator</label>
+                        <label class="checklist-item"><input type="checkbox"> Underfloor heating</label>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Bathroom Extras</label>
+                    <div class="checklist">
+                        <label class="checklist-item"><input type="checkbox"> Heated towel rail</label>
+                        <label class="checklist-item"><input type="checkbox"> Extract fan</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SECTION 07: ROOF & EXTERNAL -->
+            <div class="card">
+                <h3>07 Roof & External</h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Existing Roof Tile Type</label>
+                    <input type="text" placeholder="e.g. Clay, Concrete, Slate">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Dormer Window Type</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 6px;">
+                        <option>-- Select --</option>
+                        <option>Flat / Pitched</option>
+                        <option>uPVC</option>
+                        <option>Aluminium</option>
+                        <option>Timber</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Rooflights</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 6px;">
+                        <option>-- Select --</option>
+                        <option>MK04 - 780 x 980mm</option>
+                        <option>MK06 - 780 x 1180mm</option>
+                        <option>MK07 - 780 x 1400mm</option>
+                        <option>SK06 - 1140 x 1180mm</option>
+                        <option>UK08 - 1340 x 1400mm</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Gutters / Drainage</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 6px;">
+                        <option>-- Select --</option>
+                        <option>New gutters required</option>
+                        <option>Existing adequate</option>
+                        <option>Upgrade needed</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- SECTION 08: QUOTE DETAILS -->
+            <div class="card">
+                <h3>08 Quotation</h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Materials Estimate (£)</label>
+                    <input type="number" placeholder="e.g. 25000">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Labour Estimate (£)</label>
+                    <input type="number" placeholder="e.g. 20000">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Profit Margin (%)</label>
+                    <input type="number" placeholder="e.g. 15" step="0.1">
+                </div>
+                
+                <div style="padding: 16px; background: #F5F3F0; border-radius: 8px;">
+                    <p style="color: #666; margin-bottom: 8px;">📊 Estimated Quote:</p>
+                    <p style="font-size: 24px; font-weight: 700; color: #BF9A5B;">£61,500</p>
+                </div>
+                
+                <div style="margin-top: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">What's Included?</label>
+                    <div class="checklist">
+                        <label class="checklist-item"><input type="checkbox"> Scaffold</label>
+                        <label class="checklist-item"><input type="checkbox"> Skip / Waste</label>
+                        <label class="checklist-item"><input type="checkbox"> Structural Steel</label>
+                        <label class="checklist-item"><input type="checkbox"> Staircase</label>
+                        <label class="checklist-item"><input type="checkbox"> Plastering</label>
+                        <label class="checklist-item"><input type="checkbox"> Building Control</label>
+                        <label class="checklist-item"><input type="checkbox"> Electrical Cert</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SECTION 09: NEXT ACTIONS -->
+            <div class="card">
+                <h3>09 Next Steps</h3>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Next Action</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 6px;">
+                        <option>-- Select --</option>
+                        <option>Send estimate/quote</option>
+                        <option>Obtain plans</option>
+                        <option>Need re-visit</option>
+                        <option>Awaiting client decision</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Notes</label>
+                    <textarea placeholder="Quick notes..." style="width: 100%; padding: 10px; border: 1px solid #E5E7EB; border-radius: 6px; min-height: 60px;"></textarea>
+                </div>
+                
+                <button class="btn btn-gold" style="width: 100%; margin-top: 12px;">✓ Save Project</button>
+            </div>
+        </div>
+
+        <!-- MESSAGES TAB -->
+        <div id="messages-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">💬 Team Messages</h2>
+            
+            <div class="card">
+                <h3>Important Communication Log</h3>
+                <p style="color: #666; font-size: 12px; margin-bottom: 16px;">All messages are recorded for accountability & reference</p>
+                
+                <div style="background: #F9F8F6; border-radius: 8px; padding: 12px; min-height: 300px; margin-bottom: 12px; overflow-y: auto; border: 1px solid #E5E7EB;">
+                    <div style="margin-bottom: 12px; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #10B981;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">You</strong>
+                            <span style="font-size: 11px; color: #999;">Today 14:32</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">Safety briefing tomorrow 9am sharp. Bring CSCS cards and PPE.</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px; padding: 10px; background: #DCFCE7; border-radius: 6px; border-left: 4px solid #10B981;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">Mike (Carpenter)</strong>
+                            <span style="font-size: 11px; color: #999;">Today 14:35</span>
+                        </div>
+                        <p style="font-size: 13px; color: #166534;">Got it boss. Team ready. Will brief apprentice.</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #10B981;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">You</strong>
+                            <span style="font-size: 11px; color: #999;">Today 15:10</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">⚡ Electrician cancelled Wednesday. Rescheduled to Friday 9am at Oakfield. Update subcontractors.</p>
+                    </div>
+
+                    <div style="margin-bottom: 12px; padding: 10px; background: #FEF3C7; border-radius: 6px; border-left: 4px solid #FBBF24;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">Emma (Team 2)</strong>
+                            <span style="font-size: 11px; color: #999;">Today 15:15</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">Can we confirm Chelsea House start date? Client chasing.</p>
+                    </div>
+
+                    <div style="margin-bottom: 12px; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #10B981;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">You</strong>
+                            <span style="font-size: 11px; color: #999;">Today 15:20</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">Chelsea start 2 June. Structural calc still with engineer - will chase this afternoon.</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" placeholder="Type message..." style="flex: 1; padding: 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px;">
+                    <button class="btn btn-gold" style="padding: 12px 20px; font-weight: 600;">Send 📤</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Message Recipients</h3>
+                <p style="color: #666; font-size: 12px; margin-bottom: 12px;">Select who sees this message:</p>
+                <div class="checklist">
+                    <label class="checklist-item"><input type="checkbox" checked> Mike (Carpenter)</label>
+                    <label class="checklist-item"><input type="checkbox" checked> Emma (Team 2)</label>
+                    <label class="checklist-item"><input type="checkbox" checked> Dave (Team 3)</label>
+                    <label class="checklist-item"><input type="checkbox"> John (Client)</label>
+                    <label class="checklist-item"><input type="checkbox"> Electrician</label>
+                    <label class="checklist-item"><input type="checkbox"> Plumber</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- FINANCIALS TAB -->
+        <div id="financials-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">💰 Financials</h2>
+            
+            <div class="grid-3">
+                <div class="stat-card">
+                    <div class="stat-label">Quote</div>
+                    <div class="stat-value gold">£58,880</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Actual Cost</div>
+                    <div class="stat-value">£34,200</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Profit</div>
+                    <div class="stat-value green">£24,680</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>💳 Invoice Tracker</h2>
+                <table class="table">
+                    <tr>
+                        <th>Milestone</th>
+                        <th>Amount</th>
+                        <th>Date Due</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Deposit (20%)</td>
+                        <td>£11,776</td>
+                        <td>1 May</td>
+                        <td><span class="badge completed">✓ Paid</span></td>
+                    </tr>
+                    <tr>
+                        <td>Milestone 1 (30%)</td>
+                        <td>£17,664</td>
+                        <td>12 May</td>
+                        <td><span class="badge overdue">Overdue</span></td>
+                    </tr>
+                    <tr>
+                        <td>Milestone 2 (30%)</td>
+                        <td>£17,664</td>
+                        <td>23 May</td>
+                        <td><span class="badge pending">Pending</span></td>
+                    </tr>
+                </table>
+                <button class="btn btn-gold" style="width: 100%; margin-top: 12px;">📧 Send Invoice Reminder</button>
+            </div>
+            
+            <div class="card">
+                <h2>💸 Expense Log</h2>
+                <table class="table">
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                    </tr>
+                    <tr>
+                        <td>15 May</td>
+                        <td>Timber delivery</td>
+                        <td>Materials</td>
+                        <td>£3,200</td>
+                    </tr>
+                    <tr>
+                        <td>14 May</td>
+                        <td>Electrical cable</td>
+                        <td>Materials</td>
+                        <td>£1,850</td>
+                    </tr>
+                    <tr>
+                        <td>12 May</td>
+                        <td>Van fuel</td>
+                        <td>Logistics</td>
+                        <td>£45</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>👷 Sub Payments Due</h2>
+                <table class="table">
+                    <tr>
+                        <th>Trade</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Roofer (Completed)</td>
+                        <td>£2,400</td>
+                        <td><span class="badge completed">✓ Paid</span></td>
+                    </tr>
+                    <tr>
+                        <td>Electrician (Booked)</td>
+                        <td>£4,800</td>
+                        <td><span class="badge pending">⏳ Estimate</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- GALLERY TAB -->
+        <div id="gallery-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">📸 Project Gallery</h2>
+            
+            <div class="card">
+                <h2>Structural Phase</h2>
+                <p style="color: #666; margin-bottom: 12px;">✓ Completed</p>
+                <div class="photo-grid">
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                </div>
+                <button class="btn btn-secondary" style="width: 100%;">📧 Auto-Email to Client</button>
+            </div>
+            
+            <div class="card">
+                <h2>First Fix Phase</h2>
+                <p style="color: #666; margin-bottom: 12px;">⏳ In Progress</p>
+                <div class="photo-grid">
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                </div>
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 12px;">➕ Add More Photos</button>
+            </div>
+        </div>
+
+        <!-- SAFETY TAB -->
+        <div id="safety-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">🛡️ Health & Safety</h2>
+            
+            <div class="card">
+                <h2>🎤 Toolbox Talks</h2>
+                <p style="color: #666; margin-bottom: 12px;">Record once, plays to all team members daily</p>
+                
+                <table class="table">
+                    <tr>
+                        <th>Talk</th>
+                        <th>Duration</th>
+                        <th>Last Delivered</th>
+                    </tr>
+                    <tr>
+                        <td>Working at Height</td>
+                        <td>2:30</td>
+                        <td>Today 08:00</td>
+                    </tr>
+                    <tr>
+                        <td>Electrical Safety</td>
+                        <td>3:00</td>
+                        <td>Yesterday</td>
+                    </tr>
+                    <tr>
+                        <td>Manual Handling</td>
+                        <td>2:15</td>
+                        <td>3 days ago</td>
+                    </tr>
+                </table>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 12px;">🎙️ Record New Talk</button>
+            </div>
+            
+            <div class="card">
+                <h2>📋 Incident Log</h2>
+                <table class="table">
+                    <tr>
+                        <th>Date</th>
+                        <th>Incident</th>
+                        <th>Severity</th>
+                        <th>Action</th>
+                    </tr>
+                    <tr>
+                        <td>14 May</td>
+                        <td>Near miss - scaffold shift</td>
+                        <td><span class="badge">HIGH</span></td>
+                        <td>Reported & Fixed</td>
+                    </tr>
+                </table>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 12px;">➕ Report Incident</button>
+            </div>
+            
+            <div class="card">
+                <h2>📜 Certifications Tracker</h2>
+                <table class="table">
+                    <tr>
+                        <th>Team Member</th>
+                        <th>Certification</th>
+                        <th>Expires</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Carpenter</td>
+                        <td>Working at Height</td>
+                        <td>12 Aug 2025</td>
+                        <td><span class="badge completed">✓ Valid</span></td>
+                    </tr>
+                    <tr>
+                        <td>Apprentice</td>
+                        <td>CSCS Card</td>
+                        <td>20 Sep 2024</td>
+                        <td><span class="badge overdue">EXPIRED</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- MATERIALS TAB -->
+        <div id="materials-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">📦 Materials & Ordering</h2>
+            
+            <div class="card">
+                <h2>Materials Checklist</h2>
+                <div class="checklist">
+                    <label class="checklist-item">
+                        <input type="checkbox" checked>
+                        <span>Main beam - Delivered 5 May</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" checked>
+                        <span>Joists - Delivered 7 May</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" checked>
+                        <span>Roof plating - Delivered 8 May</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox">
+                        <span>Plasterboard - On order, due 18 May</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox">
+                        <span>Electrical cable - On order, due 15 May</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🔗 Quick Order Links</h2>
+                <button class="btn btn-secondary" style="width: 100%; margin-bottom: 8px;">🔗 Selco Account</button>
+                <button class="btn btn-secondary" style="width: 100%; margin-bottom: 8px;">🔗 Screwfix Account</button>
+                <button class="btn btn-secondary" style="width: 100%;">🔗 Timber Supplier</button>
+            </div>
+        </div>
+
+        <!-- TEAM TAB -->
+        <div id="team-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">👷 Team Management</h2>
+            
+            <div class="card">
+                <h2>⏰ Timesheets</h2>
+                <table class="table">
+                    <tr>
+                        <th>Team Member</th>
+                        <th>Today</th>
+                        <th>Week</th>
+                        <th>Month</th>
+                        <th>%Share</th>
+                    </tr>
+                    <tr>
+                        <td>Carpenter</td>
+                        <td>9h</td>
+                        <td>45h</td>
+                        <td>156h</td>
+                        <td>10%</td>
+                    </tr>
+                    <tr>
+                        <td>Apprentice</td>
+                        <td>9h</td>
+                        <td>45h</td>
+                        <td>140h</td>
+                        <td>5%</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>💰 Wage Tracker</h2>
+                <table class="table">
+                    <tr>
+                        <th>Team Member</th>
+                        <th>Current Job %</th>
+                        <th>Earned (This Job)</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Carpenter</td>
+                        <td>10%</td>
+                        <td>£5,888</td>
+                        <td><span class="badge pending">⏳ Next Milestone</span></td>
+                    </tr>
+                    <tr>
+                        <td>Apprentice</td>
+                        <td>5%</td>
+                        <td>£2,944</td>
+                        <td><span class="badge pending">⏳ Next Milestone</span></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>🏖️ Holidays & Time Off</h2>
+                <p style="color: #666; margin-bottom: 12px;">Carpenter: 15-20 Aug</p>
+                <p style="color: #666;">Apprentice: Available</p>
+            </div>
+            
+            <div class="card">
+                <h2>📊 Attendance Board (May 2025)</h2>
+                <table class="table" style="font-size: 11px;">
+                    <tr>
+                        <th>Member</th>
+                        <th>Week 1</th>
+                        <th>Week 2</th>
+                        <th>Week 3</th>
+                        <th>Week 4</th>
+                        <th>Total</th>
+                    </tr>
+                    <tr>
+                        <td>Carpenter</td>
+                        <td>5 days</td>
+                        <td>5 days</td>
+                        <td>4 days</td>
+                        <td>5 days</td>
+                        <td>19 days</td>
+                    </tr>
+                    <tr>
+                        <td>Apprentice</td>
+                        <td>5 days</td>
+                        <td>5 days</td>
+                        <td>5 days</td>
+                        <td>5 days</td>
+                        <td>20 days</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- SUBS TAB -->
+        <div id="subs-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">🔧 Subcontractors</h2>
+            
+            <div class="card">
+                <h2>⭐ Subcontractor Ratings</h2>
+                <table class="table">
+                    <tr>
+                        <th>Trade</th>
+                        <th>Name</th>
+                        <th>Jobs Done</th>
+                        <th>Rating</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td>Roofer</td>
+                        <td>Dave's Roofing</td>
+                        <td>3</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>Excellent work, always on time</td>
+                    </tr>
+                    <tr>
+                        <td>Electrician</td>
+                        <td>Sparks Ltd</td>
+                        <td>5</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>Good work, can be slow</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>📅 Upcoming Bookings</h2>
+                <table class="table">
+                    <tr>
+                        <th>Trade</th>
+                        <th>Booking Date</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Electrician</td>
+                        <td>20 May</td>
+                        <td><span class="badge completed">✓ Confirmed</span></td>
+                    </tr>
+                    <tr>
+                        <td>Plumber</td>
+                        <td>23 May</td>
+                        <td><span class="badge pending">⏳ Pending</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- ANALYTICS TAB -->
+        <div id="analytics-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">📈 Analytics & Insights</h2>
+            
+            <div class="grid-3">
+                <div class="stat-card">
+                    <div class="stat-label">Avg Profit Margin</div>
+                    <div class="stat-value green">42%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Days Ahead Schedule</div>
+                    <div class="stat-value green">+2</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Team Productivity</div>
+                    <div class="stat-value gold">847h</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>💹 Job Profitability</h2>
+                <table class="table">
+                    <tr>
+                        <th>Job</th>
+                        <th>Quote</th>
+                        <th>Actual</th>
+                        <th>Profit</th>
+                        <th>Margin</th>
+                    </tr>
+                    <tr>
+                        <td>Oakfield Loft (Current)</td>
+                        <td>£58,880</td>
+                        <td>£34,200</td>
+                        <td>£24,680</td>
+                        <td>42%</td>
+                    </tr>
+                    <tr>
+                        <td>Chelsea House (Completed)</td>
+                        <td>£75,000</td>
+                        <td>£42,300</td>
+                        <td>£32,700</td>
+                        <td>44%</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>👷 Team Efficiency</h2>
+                <p style="margin: 12px 0; font-size: 13px;"><strong>Carpenter:</strong> Completes phases 15% faster than average</p>
+                <p style="margin: 12px 0; font-size: 13px;"><strong>Apprentice:</strong> Solid performer, improving steadily</p>
+                <p style="margin: 12px 0; font-size: 13px;"><strong>Roofer (Sub):</strong> Consistently early finishes</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TEAM DASHBOARD - SIMPLIFIED -->
+<div id="teamScreen" class="screen dashboard">
+    <div class="header team">
+        <div class="header-left">
+            <div class="header-logo" style="background: rgba(255,255,255,0.2); color: white;">BT</div>
+            <div class="header-text">
+                <h1>Site Team</h1>
+                <p id="teamName">👷 Carpenter</p>
+            </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    
+    <div class="content">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTeamTab('status', this)">Status</button>
+            <button class="tab" onclick="switchTeamTab('messages', this)">💬 Messages</button>
+        </div>
+
+        <!-- STATUS TAB -->
+        <div id="team-status-tab" class="tab-content">
+            <h2 class="page-title" id="teamJobTitle">📍 Oakfield Loft Conversion</h2>
+            
+            <div class="card">
+                <h3>Today's Task</h3>
+                <p style="color: #666; font-size: 13px; margin-bottom: 12px;" id="teamJobPhase">First Fix Phase - Electrical & Plumbing rough-in</p>
+                <div style="padding: 12px; background: #F5F3F0; border-radius: 6px; border-left: 4px solid #BF9A5B;">
+                    <p style="font-size: 12px; color: #666;"><strong>Client:</strong> John Anderson</p>
+                    <p style="font-size: 12px; color: #666; margin-top: 4px;"><strong>Status:</strong> On track - 2 days ahead</p>
+                </div>
+            </div>
+
+            <div class="card">
+            <div style="margin: 20px 0;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">Drag to update progress</span>
+                    <span style="color: #BF9A5B; font-weight: 700; font-size: 20px;" id="progressValue">70%</span>
+                </div>
+                <input type="range" min="0" max="100" value="70" style="width: 100%; height: 8px; border-radius: 5px; background: #E5E7EB; outline: none; -webkit-appearance: none; appearance: none;" onchange="document.getElementById('progressValue').innerText = this.value + '%'">
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>When Will You Need Next Trade?</h3>
+            
+            <div style="margin: 16px 0;">
+                <p style="color: #666; font-size: 13px; margin-bottom: 8px; font-weight: 600;">Which trade?</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <button style="padding: 14px; border: 2px solid #E5E7EB; background: white; border-radius: 8px; font-weight: 600; cursor: pointer;">⚡ Electrician</button>
+                    <button style="padding: 14px; border: 2px solid #E5E7EB; background: white; border-radius: 8px; font-weight: 600; cursor: pointer;">🚰 Plumber</button>
+                    <button style="padding: 14px; border: 2px solid #E5E7EB; background: white; border-radius: 8px; font-weight: 600; cursor: pointer;">🎨 Plasterer</button>
+                    <button style="padding: 14px; border: 2px solid #E5E7EB; background: white; border-radius: 8px; font-weight: 600; cursor: pointer;">🏠 Roofer</button>
+                </div>
+            </div>
+            
+            <div style="margin: 16px 0;">
+                <p style="color: #666; font-size: 13px; margin-bottom: 8px; font-weight: 600;">Pick date</p>
+                <input type="date" style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 16px; font-weight: 600;">
+            </div>
+            
+            <button class="btn btn-gold" style="width: 100%;">✓ Confirm Forecast</button>
+        </div>
+        
+        <div class="card">
+            <h3>Report an Issue</h3>
+            
+            <div style="margin: 16px 0;">
+                <p style="color: #666; font-size: 12px; margin-bottom: 8px; font-weight: 600;">Priority?</p>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                    <button style="padding: 12px; border: 2px solid #DC2626; background: white; border-radius: 8px; font-weight: 600; cursor: pointer;">🚨 Urgent</button>
+                    <button style="padding: 12px; border: 2px solid #F97316; background: white; border-radius: 8px; font-weight: 600; cursor: pointer;">⚠️ Standard</button>
+                    <button style="padding: 12px; border: 2px solid #3B82F6; background: white; border-radius: 8px; font-weight: 600; cursor: pointer;">ℹ️ FYI</button>
+                </div>
+            </div>
+            
+            <textarea placeholder="What's the issue?" style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; font-family: inherit; min-height: 60px; resize: vertical;"></textarea>
+            
+            <button class="btn btn-primary" style="width: 100%; margin-top: 12px;">Send Issue</button>
+        </div>
+        
+        <div class="card">
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-gold" style="flex: 1;">⏰ Clock In</button>
+                <button class="btn btn-green" style="flex: 1;">📸 Photos</button>
+            </div>
+        </div>
+
+        <!-- MESSAGES TAB -->
+        <div id="team-messages-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">💬 Site Messages</h2>
+            
+            <div class="card">
+                <h3>Messages from Thomas</h3>
+                <div style="background: #F9F8F6; border-radius: 8px; padding: 12px; min-height: 300px; margin-bottom: 12px; overflow-y: auto; border: 1px solid #E5E7EB;">
+                    <div style="margin-bottom: 12px; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #3B82F6;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">Thomas</strong>
+                            <span style="font-size: 11px; color: #999;">09:00</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">Morning team! Ready for today? Weather looks perfect.</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px; padding: 10px; background: #DCFCE7; border-radius: 6px; border-left: 4px solid #10B981;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">You</strong>
+                            <span style="font-size: 11px; color: #999;">09:05</span>
+                        </div>
+                        <p style="font-size: 13px; color: #166534;">Yes boss all set. Materials arrived this morning.</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #3B82F6;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">Thomas</strong>
+                            <span style="font-size: 11px; color: #999;">09:06</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">Brilliant. Safety briefing in 10 mins by the truck. Got the site induction form for the new apprentice.</p>
+                    </div>
+
+                    <div style="margin-bottom: 12px; padding: 10px; background: #DCFCE7; border-radius: 6px; border-left: 4px solid #10B981;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">You</strong>
+                            <span style="font-size: 11px; color: #999;">09:08</span>
+                        </div>
+                        <p style="font-size: 13px; color: #166534;">See you in 10. 👍</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" placeholder="Reply to Thomas..." style="flex: 1; padding: 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px;">
+                    <button class="btn btn-gold" style="padding: 12px 20px; font-weight: 600;">Send 📤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CLIENT DASHBOARD -->
+<div id="clientScreen" class="screen dashboard">
+    <div class="header">
+        <div class="header-left">
+            <div class="header-logo">BT</div>
+            <div class="header-text">
+                <h1>Your Project</h1>
+                <p>🏠 Oakfield Loft Conversion</p>
+            </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    
+    <div class="content">
+        <div class="tabs">
+            <button class="tab active" onclick="switchClientTab('progress', this)">Progress</button>
+            <button class="tab" onclick="switchClientTab('photos', this)">Photos</button>
+            <button class="tab" onclick="switchClientTab('invoices', this)">Invoices</button>
+            <button class="tab" onclick="switchClientTab('updates', this)">Updates</button>
+            <button class="tab" onclick="switchClientTab('messages', this)">💬 Messages</button>
+        </div>
+
+        <!-- PROGRESS TAB -->
+        <div id="progress-tab" class="tab-content">
+            <h2 class="page-title">📊 Project Status</h2>
+            
+            <div class="card">
+                <h3>Overall Progress</h3>
+                <div style="margin: 20px 0;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="flex: 1;">
+                            <div style="background: #E5E7EB; border-radius: 20px; height: 12px;">
+                                <div style="background: #08101E; border-radius: 20px; height: 12px; width: 70%;"></div>
+                            </div>
+                        </div>
+                        <span style="font-weight: 700; color: #08101E; font-size: 20px;">70%</span>
+                    </div>
+                </div>
+                <p style="color: #666; font-size: 13px;">On track for 26 June completion</p>
+            </div>
+            
+            <div class="card">
+                <h3>Timeline</h3>
+                <div class="progress-item">
+                    <span style="font-weight: 600; min-width: 120px;">Structural</span>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
+                    <span style="font-weight: 700; min-width: 40px;">✓</span>
+                </div>
+                <div class="progress-item">
+                    <span style="font-weight: 600; min-width: 120px;">First Fix</span>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 70%;"></div></div>
+                    <span style="font-weight: 700; min-width: 40px;">70%</span>
+                </div>
+                <div class="progress-item">
+                    <span style="font-weight: 600; min-width: 120px;">Second Fix</span>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 0%;"></div></div>
+                    <span style="font-weight: 700; min-width: 40px;">TBD</span>
+                </div>
+                <div class="progress-item">
+                    <span style="font-weight: 600; min-width: 120px;">Snagging</span>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 0%;"></div></div>
+                    <span style="font-weight: 700; min-width: 40px;">TBD</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHOTOS TAB -->
+        <div id="photos-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">📸 Project Photos</h2>
+            
+            <div class="card">
+                <h3>Structural Phase ✓</h3>
+                <div class="photo-grid">
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>First Fix (In Progress)</h3>
+                <div class="photo-grid">
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                    <div class="photo-item">📸</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INVOICES TAB -->
+        <div id="invoices-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">💳 Invoices</h2>
+            
+            <div class="card">
+                <table class="table">
+                    <tr>
+                        <th>Milestone</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Deposit (20%)</td>
+                        <td>£11,776</td>
+                        <td><span class="badge completed">✓ Paid</span></td>
+                    </tr>
+                    <tr>
+                        <td>Milestone 1 (30%)</td>
+                        <td>£17,664</td>
+                        <td><span class="badge overdue">Overdue</span></td>
+                    </tr>
+                    <tr>
+                        <td>Milestone 2 (30%)</td>
+                        <td>£17,664</td>
+                        <td><span class="badge pending">Due</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- UPDATES TAB -->
+        <div id="updates-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">📬 Project Updates</h2>
+            
+            <div class="card">
+                <div style="padding: 16px; background: #DCFCE7; border-radius: 8px; border-left: 4px solid #10B981; margin-bottom: 16px;">
+                    <p style="font-weight: 600; color: #166534; margin-bottom: 4px;">15 May - Structural Phase Complete ✓</p>
+                    <p style="font-size: 13px; color: #166534;">Great progress! Main frame is complete. Team is on schedule.</p>
+                </div>
+                
+                <div style="padding: 16px; background: #DCFCE7; border-radius: 8px; border-left: 4px solid #10B981;">
+                    <p style="font-weight: 600; color: #166534; margin-bottom: 4px;">12 May - First Fix Started</p>
+                    <p style="font-size: 13px; color: #166534;">Structural work complete, electrical & plumbing first fix underway.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MESSAGES TAB -->
+        <div id="messages-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">💬 Messages from Thomas</h2>
+            
+            <div class="card">
+                <h3>Project Updates & Communication</h3>
+                <div style="background: #F9F8F6; border-radius: 8px; padding: 12px; min-height: 300px; margin-bottom: 12px; overflow-y: auto; border: 1px solid #E5E7EB;">
+                    <div style="margin-bottom: 12px; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #3B82F6;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">Thomas</strong>
+                            <span style="font-size: 11px; color: #999;">15 May, 14:30</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">Hi John! Structural work complete - team did a fantastic job. Photos coming tomorrow. Electrical first fix starts Monday.</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px; padding: 10px; background: #EFF6FF; border-radius: 6px; border-left: 4px solid #3B82F6;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">You</strong>
+                            <span style="font-size: 11px; color: #999;">15 May, 14:45</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">Fantastic! That's great news. Can't wait to see the progress. When will the electrician be there?</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #3B82F6;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">Thomas</strong>
+                            <span style="font-size: 11px; color: #999;">16 May, 09:00</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">20-23 May confirmed for first fix electrical. Plumber is same week (24-26 May). They'll work around each other. All materials on site.</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" placeholder="Ask Thomas a question..." style="flex: 1; padding: 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px;">
+                    <button class="btn btn-gold" style="padding: 12px 20px; font-weight: 600;">Send 📤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SUBCONTRACTOR DASHBOARD -->
+<div id="subScreen" class="screen dashboard">
+    <div class="header" style="background: linear-gradient(135deg, #F97316 0%, #D97706 100%);">
+        <div class="header-left">
+            <div class="header-logo" style="background: rgba(255,255,255,0.2); color: white;">BT</div>
+            <div class="header-text">
+                <h1>Your Jobs</h1>
+                <p id="subTrade">⚡ Electrician</p>
+            </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    
+    <div class="content">
+        <div class="tabs">
+            <button class="tab active" onclick="switchSubTab('forecasts', this)">Forecasts</button>
+            <button class="tab" onclick="switchSubTab('confirmed', this)">Confirmed</button>
+            <button class="tab" onclick="switchSubTab('messages', this)">💬 Messages</button>
+        </div>
+
+        <!-- FORECASTS TAB -->
+        <div id="forecasts-tab" class="tab-content">
+            <h2 class="page-title">📌 Job Forecasts</h2>
+            
+            <div class="card">
+                <div class="alert info">
+                    <span>1 Forecast • Planning ahead helps us all!</span>
+                </div>
+                
+                <h3>Oakfield Loft - First Fix Electrical</h3>
+                <div style="padding: 16px; background: #FEF3C7; border-radius: 8px; border-left: 4px solid #FBBF24; margin-bottom: 16px;">
+                    <p style="font-size: 12px; color: #92400E;">📌 SOFT FORECAST</p>
+                    <p style="font-size: 20px; font-weight: 700; color: #92400E;">📅 20 May 2025</p>
+                    <p style="font-size: 12px; color: #92400E; margin-top: 4px;">Team is 70% through structural work</p>
+                </div>
+                
+                <h3>What You Need to Know</h3>
+                <div class="checklist">
+                    <div class="checklist-item" style="cursor: default; background: #DCFCE7;">
+                        <span>✓ Cable routes will be marked</span>
+                    </div>
+                    <div class="checklist-item" style="cursor: default; background: #DCFCE7;">
+                        <span>✓ Conduit will be installed</span>
+                    </div>
+                    <div class="checklist-item" style="cursor: default; background: #DCFCE7;">
+                        <span>✓ All locations will be ready</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-green" style="width: 100%; margin-top: 16px;">✓ Got It - I'm Prepared</button>
+            </div>
+        </div>
+
+        <!-- CONFIRMED TAB -->
+        <div id="confirmed-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">✅ Confirmed Bookings</h2>
+            
+            <div class="card">
+                <div class="alert success">
+                    <span>1 Confirmed booking</span>
+                </div>
+                
+                <h3>Oakfield Loft - First Fix Electrical</h3>
+                <div style="padding: 16px; background: #DCFCE7; border-radius: 8px; border-left: 4px solid #10B981; margin-bottom: 16px;">
+                    <p style="font-size: 20px; font-weight: 700; color: #166534;">📅 20 May 2025</p>
+                    <p style="font-size: 12px; color: #166534; margin-top: 4px;">3-day booking • £4,800 on completion</p>
+                </div>
+                
+                <h3>Contact</h3>
+                <p style="color: #666; font-size: 13px; margin: 8px 0;"><strong>Mike Johnson (Carpenter)</strong></p>
+                <p style="color: #666; font-size: 13px;">07700 123 456</p>
+            </div>
+        </div>
+
+        <!-- MESSAGES TAB -->
+        <div id="sub-messages-tab" class="tab-content" style="display: none;">
+            <h2 class="page-title">💬 Messages from Thomas</h2>
+            
+            <div class="card">
+                <h3>Booking Updates & Logistics</h3>
+                <div style="background: #F9F8F6; border-radius: 8px; padding: 12px; min-height: 300px; margin-bottom: 12px; overflow-y: auto; border: 1px solid #E5E7EB;">
+                    <div style="margin-bottom: 12px; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #3B82F6;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">Thomas</strong>
+                            <span style="font-size: 11px; color: #999;">Today 10:00</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">Hi mate, confirming your slot for 20 May. Cable routes will be marked. All ready?</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px; padding: 10px; background: #DCFCE7; border-radius: 6px; border-left: 4px solid #10B981;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">You</strong>
+                            <span style="font-size: 11px; color: #999;">Today 10:15</span>
+                        </div>
+                        <p style="font-size: 13px; color: #166534;">All good. Diary is blocked. See you 20 May morning. 👍</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #3B82F6;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <strong style="color: #08101E;">Thomas</strong>
+                            <span style="font-size: 11px; color: #999;">Today 10:20</span>
+                        </div>
+                        <p style="font-size: 13px; color: #666;">Brilliant. Site address: 42 Oakfield Road, London. Gate code: 2847. WiFi: BTH-2025. Parking on street.</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" placeholder="Reply to Thomas..." style="flex: 1; padding: 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px;">
+                    <button class="btn btn-gold" style="padding: 12px 20px; font-weight: 600;">Send 📤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showScreen(screenId, param) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        if (screenId === 'teamScreen' && param) {
+            document.getElementById('teamName').innerText = '👷 ' + param;
+            
+            // Set team-specific job info
+            const teamJobs = {
+                'Team 1: Mike & Jake': {
+                    title: '📍 Oakfield Loft Conversion',
+                    phase: 'First Fix Phase - Electrical & Plumbing rough-in'
+                },
+                'Team 2: Emma & Lee': {
+                    title: '📍 Chelsea House Extension',
+                    phase: 'Structural Phase - Main frame & roof structure'
+                },
+                'Team 3: Paul & Tom': {
+                    title: '📍 Mayfair Renovation',
+                    phase: 'Structural Phase - Preparing for first fix'
+                }
+            };
+            
+            if (teamJobs[param]) {
+                document.getElementById('teamJobTitle').innerText = teamJobs[param].title;
+                document.getElementById('teamJobPhase').innerText = teamJobs[param].phase;
+            }
+        }
+        if (screenId === 'subScreen' && param) {
+            const icons = { 'Electrician': '⚡', 'Plumber': '🚰', 'Plasterer': '🎨', 'Roofer': '🏠' };
+            document.getElementById('subTrade').innerText = icons[param] + ' ' + param;
+        }
+    }
+    
+    function logout() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('loginScreen').classList.add('active');
+    }
+    
+    function switchTab(tabName, element) {
+        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabName + '-tab').style.display = 'block';
+        element.classList.add('active');
+    }
+    
+    function switchTeamTab(tabName, element) {
+        document.querySelectorAll('#team-status-tab, #team-messages-tab').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('#teamScreen .tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('team-' + tabName + '-tab').style.display = 'block';
+        element.classList.add('active');
+    }
+    
+    function switchClientTab(tabName, element) {
+        document.querySelectorAll('#progress-tab, #photos-tab, #invoices-tab, #updates-tab, #messages-tab').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('#clientScreen .tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabName + '-tab').style.display = 'block';
+        element.classList.add('active');
+    }
+    
+    function switchSubTab(tabName, element) {
+        const actualTabName = tabName === 'messages' ? 'sub-messages' : tabName;
+        document.querySelectorAll('#forecasts-tab, #confirmed-tab, #sub-messages-tab').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('#subScreen .tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(actualTabName + '-tab').style.display = 'block';
+        element.classList.add('active');
+    }
+</script>
+
+</body>
+</html>
